@@ -3,7 +3,7 @@
 *.dll
 *.so
 *.dylib
-manager-api
+/manager-api
 
 # Test
 *.test
