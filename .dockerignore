@@ -1,0 +1,10 @@
+# Avoid sending unrelated parts of the repo to the build context.
+.git
+.claude
+docs
+deploy/docker-compose/data
+
+# Don't ship test files or local node_modules into the build.
+**/*_test.go
+**/node_modules
+**/dist

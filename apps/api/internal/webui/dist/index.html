@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Traefik Fleet Manager</title>
+  </head>
+  <body>
+    <p>The web UI bundle is not present in this build of the manager-api.</p>
+    <p>
+      The Docker image runs <code>npm run build</code> in
+      <code>apps/web/</code> and copies the output into this directory before
+      the Go binary is compiled. For local <code>go build</code> outside
+      Docker, the API still works at <code>/api/v1</code>.
+    </p>
+  </body>
+</html>

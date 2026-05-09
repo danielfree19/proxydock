@@ -1,0 +1,46 @@
+{
+  "http": {
+    "middlewares": {
+      "guarded-0-rl": {
+        "rateLimit": { "average": 100, "burst": 200 }
+      },
+      "guarded-1-lan": {
+        "ipAllowList": { "sourceRange": ["10.0.0.0/8", "192.168.0.0/16"] }
+      },
+      "guarded-2-back": {
+        "retry": { "attempts": 3, "initialInterval": "100ms" }
+      },
+      "guarded-3-gz": {
+        "compress": {}
+      },
+      "guarded-4-cb": {
+        "circuitBreaker": { "expression": "NetworkErrorRatio() > 0.50" }
+      },
+      "guarded-5-all": {
+        "chain": { "middlewares": ["guarded-0-rl", "guarded-1-lan", "guarded-2-back"] }
+      }
+    },
+    "routers": {
+      "guarded": {
+        "rule": "Host(`guarded.example.com`)",
+        "service": "guarded",
+        "entryPoints": ["web"],
+        "middlewares": [
+          "guarded-0-rl",
+          "guarded-1-lan",
+          "guarded-2-back",
+          "guarded-3-gz",
+          "guarded-4-cb",
+          "guarded-5-all"
+        ]
+      }
+    },
+    "services": {
+      "guarded": {
+        "loadBalancer": {
+          "servers": [{ "url": "http://api:8080" }]
+        }
+      }
+    }
+  }
+}

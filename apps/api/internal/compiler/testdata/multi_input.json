@@ -1,0 +1,38 @@
+[
+  {
+    "id": 2,
+    "fleet_id": "homelab",
+    "name": "api",
+    "domain": "api.example.com",
+    "upstream_url": "http://api-backend:8080",
+    "entry_points": ["web", "websecure"],
+    "middlewares": [],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": 1,
+    "fleet_id": "homelab",
+    "name": "whoami",
+    "domain": "whoami.localhost",
+    "upstream_url": "http://whoami:80",
+    "entry_points": ["web"],
+    "middlewares": [],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": 3,
+    "fleet_id": "homelab",
+    "name": "draft",
+    "domain": "draft.example.com",
+    "upstream_url": "http://x:80",
+    "entry_points": ["web"],
+    "middlewares": [],
+    "enabled": false,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  }
+]

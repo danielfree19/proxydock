@@ -1,0 +1,32 @@
+{
+  "http": {
+    "routers": {
+      "api": {
+        "entryPoints": ["web", "websecure"],
+        "rule": "Host(`api.example.com`)",
+        "service": "api"
+      },
+      "whoami": {
+        "entryPoints": ["web"],
+        "rule": "Host(`whoami.localhost`)",
+        "service": "whoami"
+      }
+    },
+    "services": {
+      "api": {
+        "loadBalancer": {
+          "servers": [
+            {"url": "http://api-backend:8080"}
+          ]
+        }
+      },
+      "whoami": {
+        "loadBalancer": {
+          "servers": [
+            {"url": "http://whoami:80"}
+          ]
+        }
+      }
+    }
+  }
+}

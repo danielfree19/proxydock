@@ -1,0 +1,28 @@
+[
+  {
+    "id": 200,
+    "fleet_id": "homelab",
+    "name": "private-api",
+    "domain": "private.example.com",
+    "upstream_url": "http://api:8080",
+    "entry_points": ["websecure"],
+    "tls": true,
+    "middlewares": [
+      {
+        "name": "oidc",
+        "type": "forwardAuth",
+        "config": {
+          "address": "http://oauth2-proxy:4180/oauth2/auth",
+          "trustForwardHeader": true,
+          "authResponseHeaders": [
+            "X-Auth-Request-User",
+            "X-Auth-Request-Email"
+          ]
+        }
+      }
+    ],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  }
+]

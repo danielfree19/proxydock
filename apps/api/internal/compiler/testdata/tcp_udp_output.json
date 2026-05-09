@@ -1,0 +1,48 @@
+{
+  "http": {
+    "routers": {},
+    "services": {}
+  },
+  "tcp": {
+    "routers": {
+      "tcp-passthrough": {
+        "rule": "HostSNI(`*`)",
+        "entryPoints": ["tcpentry"],
+        "service": "tcp-passthrough"
+      },
+      "tcp-secure": {
+        "rule": "HostSNI(`tls.example.com`)",
+        "entryPoints": ["websecure"],
+        "service": "tcp-secure",
+        "tls": {}
+      }
+    },
+    "services": {
+      "tcp-passthrough": {
+        "loadBalancer": {
+          "servers": [{"address": "upstream:5432"}]
+        }
+      },
+      "tcp-secure": {
+        "loadBalancer": {
+          "servers": [{"address": "backend:8443"}]
+        }
+      }
+    }
+  },
+  "udp": {
+    "routers": {
+      "udp-dns": {
+        "entryPoints": ["dnsudp"],
+        "service": "udp-dns"
+      }
+    },
+    "services": {
+      "udp-dns": {
+        "loadBalancer": {
+          "servers": [{"address": "nameserver:53"}]
+        }
+      }
+    }
+  }
+}

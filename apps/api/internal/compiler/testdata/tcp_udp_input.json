@@ -1,0 +1,44 @@
+[
+  {
+    "id": 100,
+    "fleet_id": "homelab",
+    "name": "tcp-secure",
+    "protocol": "tcp",
+    "domain": "tls.example.com",
+    "upstream_url": "backend:8443",
+    "entry_points": ["websecure"],
+    "tls": true,
+    "middlewares": [],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": 101,
+    "fleet_id": "homelab",
+    "name": "tcp-passthrough",
+    "protocol": "tcp",
+    "domain": "*",
+    "upstream_url": "tcp://upstream:5432",
+    "entry_points": ["tcpentry"],
+    "tls": false,
+    "middlewares": [],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "id": 102,
+    "fleet_id": "homelab",
+    "name": "udp-dns",
+    "protocol": "udp",
+    "domain": "",
+    "upstream_url": "udp://nameserver:53",
+    "entry_points": ["dnsudp"],
+    "tls": false,
+    "middlewares": [],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  }
+]

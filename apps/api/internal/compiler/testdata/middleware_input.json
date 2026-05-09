@@ -1,0 +1,30 @@
+[
+  {
+    "id": 10,
+    "fleet_id": "homelab",
+    "name": "secured",
+    "domain": "secret.example.com",
+    "upstream_url": "https://internal:8443",
+    "entry_points": ["websecure"],
+    "middlewares": [
+      {
+        "name": "force-https",
+        "type": "redirectScheme",
+        "config": {"scheme": "https", "permanent": true}
+      },
+      {
+        "name": "team",
+        "type": "basicAuth",
+        "config": {"users": ["alice:$2y$05$abc", "bob:$2y$05$def"]}
+      },
+      {
+        "name": "sec-headers",
+        "type": "headers",
+        "config": {"customResponseHeaders": {"X-Frame-Options": "DENY"}}
+      }
+    ],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  }
+]

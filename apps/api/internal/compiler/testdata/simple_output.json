@@ -1,0 +1,20 @@
+{
+  "http": {
+    "routers": {
+      "whoami": {
+        "entryPoints": ["web"],
+        "rule": "Host(`whoami.localhost`)",
+        "service": "whoami"
+      }
+    },
+    "services": {
+      "whoami": {
+        "loadBalancer": {
+          "servers": [
+            {"url": "http://whoami:80"}
+          ]
+        }
+      }
+    }
+  }
+}

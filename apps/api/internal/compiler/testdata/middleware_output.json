@@ -1,0 +1,32 @@
+{
+  "http": {
+    "middlewares": {
+      "secured-0-force-https": {
+        "redirectScheme": {"permanent": true, "scheme": "https"}
+      },
+      "secured-1-team": {
+        "basicAuth": {"users": ["alice:$2y$05$abc", "bob:$2y$05$def"]}
+      },
+      "secured-2-sec-headers": {
+        "headers": {"customResponseHeaders": {"X-Frame-Options": "DENY"}}
+      }
+    },
+    "routers": {
+      "secured": {
+        "entryPoints": ["websecure"],
+        "middlewares": ["secured-0-force-https", "secured-1-team", "secured-2-sec-headers"],
+        "rule": "Host(`secret.example.com`)",
+        "service": "secured"
+      }
+    },
+    "services": {
+      "secured": {
+        "loadBalancer": {
+          "servers": [
+            {"url": "https://internal:8443"}
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "fleet_id": "homelab",
+    "name": "whoami",
+    "domain": "whoami.localhost",
+    "upstream_url": "http://whoami:80",
+    "entry_points": ["web"],
+    "middlewares": [],
+    "enabled": true,
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  }
+]

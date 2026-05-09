@@ -1,0 +1,43 @@
+# Traefik static config for agent traefik-1.
+#
+# Loads the local fleet provider plugin from the bind-mounted source at
+# /plugins-local/src/github.com/danielfree19/proxydock/providers/traefik-fleet.
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+  # Phase 6 demo: a raw TCP entry point so the manager can route a
+  # TCP proxy host through Traefik. Backed by the same whoami service
+  # in the demo (whoami answers HTTP, but the byte-stream routing
+  # still demonstrates the path).
+  tcpentry:
+    address: ":9000/tcp"
+
+experimental:
+  localPlugins:
+    fleet:
+      moduleName: github.com/danielfree19/proxydock/providers/traefik-fleet
+
+providers:
+  plugin:
+    fleet:
+      endpoint: "http://manager-api:8080"
+      fleetID: "homelab"
+      agentID: "traefik-1"
+      tokenFile: "/run/secrets/traefik-fleet-token"
+      pollInterval: "5s"
+      pollTimeout: "5s"
+      cacheFile: "/var/lib/traefik-fleet/last-good.json"
+      failMode: "keep-last-good"
+      # Ed25519 public key matching MANAGER_API_SIGNING_KEY in the
+      # manager-api env; computed from the deterministic demo seed.
+      signingPublicKey: "0EqyMnQrtKs6E2i9RhXk5tAiSrcaAWuvhSCjMsl3hzc="

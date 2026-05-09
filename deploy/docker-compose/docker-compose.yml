@@ -1,0 +1,203 @@
+# Phase 1+2 demo: manager-api (Postgres-backed) + two Traefik instances
+# pulling dynamic config compiled from a published revision.
+#
+# Run from this directory:
+#   docker compose up --build
+#
+# Then:
+#   curl http://localhost:8090/healthz
+#   curl -H "Host: whoami.localhost" http://localhost:8081
+#   curl -H "Host: whoami.localhost" http://localhost:8082
+#   curl -k -H "Host: secure.localhost" https://localhost:8443
+#   curl -k -H "Host: secure.localhost" https://localhost:8444
+#   curl -k -H "Host: acme.localhost"   https://localhost:8443
+#
+# Operational consoles:
+#   /metrics:           http://localhost:8090/metrics
+#   Jaeger trace UI:    http://localhost:16686
+#
+# (Host port 8090 is mapped to the manager-api's container port 8080 to
+# avoid conflict with anything else listening on host:8080.)
+
+name: traefik-fleet-demo
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tfm-postgres
+    environment:
+      POSTGRES_USER: tfm
+      POSTGRES_PASSWORD: tfm
+      POSTGRES_DB: tfm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tfm -d tfm"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    networks:
+      - tfm
+    volumes:
+      - tfm-postgres-data:/var/lib/postgresql/data
+
+  manager-api:
+    build:
+      # Build context is the repo root so the multi-stage Dockerfile can
+      # reach both apps/api (Go source) and apps/web (Vite source).
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    container_name: tfm-manager-api
+    ports:
+      - "8090:8080"
+    environment:
+      MANAGER_API_ADDR: ":8080"
+      DATABASE_URL: "postgres://tfm:tfm@postgres:5432/tfm?sslmode=disable"
+      MANAGER_API_DEMO_SEED: "true"
+      # Phase 5 hardening keys (deterministic for the demo so the
+      # provider plugin's signingPublicKey can be hardcoded; rotate
+      # both for any non-demo deployment).
+      MANAGER_API_ENCRYPTION_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      MANAGER_API_SIGNING_KEY: "1111111111111111111111111111111111111111111111111111111111111111"
+      MANAGER_API_BOOTSTRAP_ADMIN_TOKEN: "demo-admin"
+      # Pebble (test ACME CA) settings — only used by the demo seed
+      # and the renewal goroutine. Insecure flag is required because
+      # Pebble's directory + ACME endpoints serve a self-signed cert.
+      MANAGER_API_INSECURE_ACME: "true"
+      MANAGER_API_DEMO_ACME_DIR: "https://pebble:14000/dir"
+      MANAGER_API_DEMO_DNS_BASE_URL: "http://challtestsrv:8055"
+      # OpenTelemetry: ship traces to the bundled Jaeger via OTLP/HTTP.
+      # Standard OTEL_* env vars are honored by the SDK; the manager
+      # reads OTEL_EXPORTER_OTLP_ENDPOINT to decide whether tracing is
+      # enabled at all.
+      OTEL_SERVICE_NAME: "manager-api"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      # Phase 7: enable Docker-socket service discovery so the New
+      # Proxy Host form can suggest upstream URLs from running
+      # containers. Trust model: the socket is root-equivalent on
+      # the host — leave this unset for multi-tenant deployments.
+      MANAGER_API_DISCOVERY: "docker"
+    # Run as root in the demo so the manager can read the docker
+    # socket. The image's default `nonroot` user can't access
+    # /var/run/docker.sock without joining the host's docker group,
+    # which is fragile across hosts. Production deployments that
+    # don't enable discovery keep the nonroot default.
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pebble:
+        condition: service_started
+      challtestsrv:
+        condition: service_started
+      jaeger:
+        condition: service_started
+    networks:
+      - tfm
+
+  # Letsencrypt's pebble — a tiny, in-memory ACME CA used in the demo
+  # so the manager can run a real DNS-01 flow without needing a public
+  # domain or real ACME credentials.
+  pebble:
+    image: ghcr.io/letsencrypt/pebble:latest
+    container_name: tfm-pebble
+    command:
+      - "-config"
+      - "/test/config/pebble-config.json"
+      - "-dnsserver"
+      - "challtestsrv:8053"
+    environment:
+      # Skip Pebble's normal random delays so issuance is fast in CI.
+      PEBBLE_VA_NOSLEEP: "1"
+    networks:
+      - tfm
+
+  # Companion DNS-01 challenge HTTP server — exposes /set-txt and
+  # /clear-txt endpoints the manager calls during issuance, and a UDP
+  # DNS server pebble queries.
+  challtestsrv:
+    image: ghcr.io/letsencrypt/pebble-challtestsrv:latest
+    container_name: tfm-challtestsrv
+    networks:
+      - tfm
+
+  # Jaeger all-in-one (UI + OTLP receiver). Operators visit the UI at
+  # http://localhost:16686 to inspect traces emitted by the manager.
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    container_name: tfm-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686" # web UI
+    networks:
+      - tfm
+
+  whoami:
+    image: traefik/whoami:v1.10
+    container_name: tfm-whoami
+    networks:
+      - tfm
+
+  # Stand-in "auth gate" for the forwardAuth demo. httpbin lets us
+  # point forwardAuth at /status/200 (allow) or /status/401 (deny)
+  # without setting up a real OIDC provider + oauth2-proxy.
+  httpbin:
+    image: kennethreitz/httpbin:latest
+    container_name: tfm-httpbin
+    networks:
+      - tfm
+
+  traefik-1:
+    image: traefik:v3.1
+    container_name: tfm-traefik-1
+    command:
+      - "--configFile=/etc/traefik/traefik.yml"
+    ports:
+      - "8081:80"
+      - "8443:443"
+      - "6900:9000"
+    volumes:
+      - ./traefik/traefik-1.yml:/etc/traefik/traefik.yml:ro
+      - ../../providers/traefik-fleet:/plugins-local/src/github.com/danielfree19/proxydock/providers/traefik-fleet:ro
+      - ./secrets/agent-1-token:/run/secrets/traefik-fleet-token:ro
+      - traefik-1-cache:/var/lib/traefik-fleet
+    depends_on:
+      manager-api:
+        condition: service_started
+      whoami:
+        condition: service_started
+    networks:
+      - tfm
+
+  traefik-2:
+    image: traefik:v3.1
+    container_name: tfm-traefik-2
+    command:
+      - "--configFile=/etc/traefik/traefik.yml"
+    ports:
+      - "8082:80"
+      - "8444:443"
+      - "6901:9000"
+    volumes:
+      - ./traefik/traefik-2.yml:/etc/traefik/traefik.yml:ro
+      - ../../providers/traefik-fleet:/plugins-local/src/github.com/danielfree19/proxydock/providers/traefik-fleet:ro
+      - ./secrets/agent-2-token:/run/secrets/traefik-fleet-token:ro
+      - traefik-2-cache:/var/lib/traefik-fleet
+    depends_on:
+      manager-api:
+        condition: service_started
+      whoami:
+        condition: service_started
+    networks:
+      - tfm
+
+networks:
+  tfm:
+    driver: bridge
+
+volumes:
+  tfm-postgres-data:
+  traefik-1-cache:
+  traefik-2-cache:
