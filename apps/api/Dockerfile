@@ -12,7 +12,7 @@ COPY apps/web/ ./
 RUN npm run build
 
 # 2. Build the Go binary, bundling the freshly-built web assets via embed.
-FROM golang:1.22-alpine AS api-build
+FROM golang:1.25-alpine AS api-build
 WORKDIR /src
 
 COPY apps/api/go.mod apps/api/go.sum ./
