@@ -160,7 +160,7 @@ services:
       - "6900:9000"
     volumes:
       - ./traefik/traefik-1.yml:/etc/traefik/traefik.yml:ro
-      - ../../providers/traefik-fleet:/plugins-local/src/github.com/danielfree19/proxydock/providers/traefik-fleet:ro
+      - ../../providers/traefik-fleet:/plugins-local/src/github.com/danielfree19/proxydock-traefik-fleet:ro
       - ./secrets/agent-1-token:/run/secrets/traefik-fleet-token:ro
       - traefik-1-cache:/var/lib/traefik-fleet
     depends_on:
@@ -182,7 +182,7 @@ services:
       - "6901:9000"
     volumes:
       - ./traefik/traefik-2.yml:/etc/traefik/traefik.yml:ro
-      - ../../providers/traefik-fleet:/plugins-local/src/github.com/danielfree19/proxydock/providers/traefik-fleet:ro
+      - ../../providers/traefik-fleet:/plugins-local/src/github.com/danielfree19/proxydock-traefik-fleet:ro
       - ./secrets/agent-2-token:/run/secrets/traefik-fleet-token:ro
       - traefik-2-cache:/var/lib/traefik-fleet
     depends_on:

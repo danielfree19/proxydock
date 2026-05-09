@@ -7,7 +7,7 @@ host Go toolchain is needed; Traefik interprets the source directly.
 ## Module path
 
 ```
-github.com/danielfree19/proxydock/providers/traefik-fleet
+github.com/danielfree19/proxydock-traefik-fleet
 ```
 
 The directory containing the source must live under
@@ -20,7 +20,7 @@ Compose demo bind-mounts the provider source there.
 experimental:
   localPlugins:
     fleet:
-      moduleName: github.com/danielfree19/proxydock/providers/traefik-fleet
+      moduleName: github.com/danielfree19/proxydock-traefik-fleet
 
 providers:
   plugin:

@@ -1,7 +1,7 @@
 # Traefik static config for agent traefik-1.
 #
 # Loads the local fleet provider plugin from the bind-mounted source at
-# /plugins-local/src/github.com/danielfree19/proxydock/providers/traefik-fleet.
+# /plugins-local/src/github.com/danielfree19/proxydock-traefik-fleet.
 
 global:
   checkNewVersion: false
@@ -25,7 +25,7 @@ entryPoints:
 experimental:
   localPlugins:
     fleet:
-      moduleName: github.com/danielfree19/proxydock/providers/traefik-fleet
+      moduleName: github.com/danielfree19/proxydock-traefik-fleet
 
 providers:
   plugin:
