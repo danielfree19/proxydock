@@ -1,0 +1,68 @@
+name: Mirror Traefik plugin
+
+# Mirrors the contents of `providers/traefik-fleet/` to its standalone
+# repo `danielfree19/proxydock-traefik-fleet`. The standalone form is
+# what the Traefik plugin catalog (https://plugins.traefik.io/) scrapes
+# — the catalog requires a `.traefik.yml` at the repo root, which our
+# monorepo can't provide.
+#
+# Auth: needs a fine-grained PAT with `contents: write` on the mirror
+# repo, stored as the secret `MIRROR_REPO_TOKEN`. Without it the push
+# step is a no-op (logs a warning and exits cleanly).
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+    paths:
+      - "providers/traefik-fleet/**"
+      - ".github/workflows/mirror-plugin.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    name: Push to standalone plugin repo
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'danielfree19/proxydock' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config --global user.name "proxydock-bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Split providers/traefik-fleet/ as plugin-mirror branch
+        # `git subtree split` extracts the sub-tree's history into a
+        # new branch with the plugin files at root. We force-push
+        # because the mirror is a derived artifact — its history is
+        # always whatever the source's plugin sub-dir was.
+        run: |
+          git subtree split --prefix=providers/traefik-fleet -b plugin-mirror
+          git log --oneline plugin-mirror | head -5
+
+      - name: Push to mirror
+        env:
+          TOKEN: ${{ secrets.MIRROR_REPO_TOKEN }}
+          REF: ${{ github.ref }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::MIRROR_REPO_TOKEN is not set; skipping push to mirror repo."
+            exit 0
+          fi
+          REMOTE="https://x-access-token:${TOKEN}@github.com/danielfree19/proxydock-traefik-fleet.git"
+          git push --force "$REMOTE" plugin-mirror:main
+
+          # If this run was triggered by a SemVer tag push, mirror the
+          # tag to the same commit on the mirror so the plugin catalog
+          # can pick the SemVer ref.
+          if [[ "$REF" == refs/tags/v* ]]; then
+            TAG="${REF#refs/tags/}"
+            git tag -f "$TAG" plugin-mirror
+            git push --force "$REMOTE" "refs/tags/$TAG"
+          fi
