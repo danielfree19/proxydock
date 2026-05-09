@@ -31,8 +31,8 @@ func (in webhookInput) validate() error {
 		return errors.New("events must include at least one event")
 	}
 	allowed := map[string]bool{
-		"revision_published":   true,
-		"revision_rolled_back": true,
+		"revision_published":      true,
+		"revision_rolled_back":    true,
 		"acme_certificate_issued": true,
 	}
 	for _, ev := range in.Events {

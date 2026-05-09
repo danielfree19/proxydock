@@ -261,8 +261,8 @@ func (s *Server) handleHealth(w http.ResponseWriter, _ *http.Request) {
 func (s *Server) handleSigningPubkey(w http.ResponseWriter, _ *http.Request) {
 	if s.Signer == nil {
 		writeJSON(w, http.StatusOK, map[string]any{
-			"enabled": false,
-			"alg":     "",
+			"enabled":    false,
+			"alg":        "",
 			"public_key": "",
 		})
 		return

@@ -454,11 +454,11 @@ func (s *Server) fireWebhooks(ctx context.Context, fleetID, event string, rev mo
 		return
 	}
 	payload, err := json.Marshal(map[string]any{
-		"event":            event,
-		"fleet_id":         fleetID,
-		"revision_number":  rev.Number,
-		"etag":             rev.ETag,
-		"generated_at":     rev.GeneratedAt,
+		"event":           event,
+		"fleet_id":        fleetID,
+		"revision_number": rev.Number,
+		"etag":            rev.ETag,
+		"generated_at":    rev.GeneratedAt,
 	})
 	if err != nil {
 		s.Logger.Warn("marshal webhook payload", "err", err)

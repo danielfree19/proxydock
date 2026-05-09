@@ -168,10 +168,10 @@ func TestIntegration_EncryptedColumns_RoundTrip(t *testing.T) {
 	plaintextKey := "-----BEGIN EC PRIVATE KEY-----\nMHc...\n-----END EC PRIVATE KEY-----\n"
 	saved, err := s.CreateCertificate(ctx, model.Certificate{
 		FleetID: "homelab", Name: "c1",
-		CertPEM: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
-		KeyPEM:  plaintextKey,
+		CertPEM:     "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+		KeyPEM:      plaintextKey,
 		Fingerprint: "sha256:test", Subject: "CN=test", Issuer: "CN=ca",
-		DNSNames: []string{"example.com"},
+		DNSNames:  []string{"example.com"},
 		NotBefore: time.Now(), NotAfter: time.Now().Add(24 * time.Hour),
 		Source: "upload",
 	})
@@ -425,10 +425,10 @@ func TestIntegration_AuditQuery_Filters(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	mk("bootstrap", "/api/v1/fleets", nil)            // global
+	mk("bootstrap", "/api/v1/fleets", nil) // global
 	mk("admin:abcd1234", "/api/v1/fleets/homelab/x", &homelab)
 	mk("admin:abcd1234", "/api/v1/fleets/other/x", &other)
-	mk("bootstrap", "/api/v1/admin/tokens", nil)      // global
+	mk("bootstrap", "/api/v1/admin/tokens", nil) // global
 
 	// Filter == nil → all four.
 	all, err := s.ListAuditEntries(ctx, store.AuditQuery{})

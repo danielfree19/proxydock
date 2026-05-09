@@ -32,8 +32,8 @@ func TestParseBearer_Errors(t *testing.T) {
 	cases := []string{
 		"",
 		"token-without-scheme",
-		"tfm_abcabcab",         // missing _secret
-		"tfm_abc_def",          // wrong lengths
+		"tfm_abcabcab", // missing _secret
+		"tfm_abc_def",  // wrong lengths
 		"tfm_zzzzzzzz_00000000000000000000000000000000", // prefix not hex
 	}
 	for _, in := range cases {

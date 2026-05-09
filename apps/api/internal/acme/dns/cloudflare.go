@@ -58,9 +58,9 @@ func NewCloudflare(rawConfig []byte) (*Cloudflare, error) {
 // We keep `Result` as json.RawMessage so each call site decodes its own
 // shape; failure handling is shared.
 type cfResponse struct {
-	Success bool              `json:"success"`
-	Errors  []cfMessage       `json:"errors"`
-	Result  json.RawMessage   `json:"result"`
+	Success bool            `json:"success"`
+	Errors  []cfMessage     `json:"errors"`
+	Result  json.RawMessage `json:"result"`
 }
 
 type cfMessage struct {

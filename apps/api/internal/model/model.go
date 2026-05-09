@@ -19,9 +19,9 @@ type Fleet struct {
 
 // Agent is a single Traefik instance.
 type Agent struct {
-	ID                  string     `json:"id"`
-	FleetID             string     `json:"fleet_id"`
-	Name                string     `json:"name"`
+	ID      string `json:"id"`
+	FleetID string `json:"fleet_id"`
+	Name    string `json:"name"`
 	// Labels are "key=value" strings the operator attaches to the
 	// agent for selector-based revision targeting (Phase 5b).
 	Labels              []string   `json:"labels"`
@@ -97,10 +97,10 @@ type ProxyHost struct {
 	StickySession bool `json:"sticky_session"`
 	// HealthCheck holds the Traefik healthCheck config for HTTP
 	// services. Empty map disables health checks. Phase 7.
-	HealthCheck   map[string]any `json:"health_check,omitempty"`
-	EntryPoints   []string       `json:"entry_points"`
-	Middlewares   []Middleware `json:"middlewares"`
-	TLS           bool         `json:"tls"`
+	HealthCheck map[string]any `json:"health_check,omitempty"`
+	EntryPoints []string       `json:"entry_points"`
+	Middlewares []Middleware   `json:"middlewares"`
+	TLS         bool           `json:"tls"`
 	// LabelSelector is an empty-or-comma-separated list of
 	// "key=value" requirements (Phase 5b). An empty selector matches
 	// every agent in the fleet.
@@ -252,9 +252,9 @@ type Revision struct {
 	// (Phase 5b). The agent endpoint re-runs the compiler per-agent on
 	// SourceProxyHosts + SourceCerts so a later cert rotation doesn't
 	// silently change what an agent receives mid-revision.
-	SourceCerts      json.RawMessage `json:"source_certs"`
-	ETag             string          `json:"etag"`
-	Notes            string          `json:"notes,omitempty"`
+	SourceCerts json.RawMessage `json:"source_certs"`
+	ETag        string          `json:"etag"`
+	Notes       string          `json:"notes,omitempty"`
 	// Signature is a base64-encoded signature over CompiledConfig
 	// (Phase 5+). Empty for revisions published before signing was
 	// enabled; the provider plugin treats absent signatures as

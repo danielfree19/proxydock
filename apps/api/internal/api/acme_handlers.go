@@ -258,4 +258,3 @@ func (s *Server) acmeHTTPClient() *http.Client {
 	}
 	return nil
 }
-

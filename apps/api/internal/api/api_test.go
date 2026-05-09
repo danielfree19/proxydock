@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	demoFleetID  = "homelab"
-	demoSecret1  = "00000000000000000000000000000001"
-	demoPrefix1  = "a1a1a1a1"
-	demoSecret2  = "00000000000000000000000000000002"
-	demoPrefix2  = "a2a2a2a2"
+	demoFleetID = "homelab"
+	demoSecret1 = "00000000000000000000000000000001"
+	demoPrefix1 = "a1a1a1a1"
+	demoSecret2 = "00000000000000000000000000000002"
+	demoPrefix2 = "a2a2a2a2"
 )
 
 // newTestServer wires a Server backed by the in-memory store, seeded
